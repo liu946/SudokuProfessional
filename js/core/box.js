@@ -4,20 +4,43 @@
 'use strict';
 
 const boxSize = 90;
-const boxBorder = 2;
+const boxBorder = 1;
+const blockBorder = 2;
 const color = {
+  border: '#000000',
   notAllow: '#E0BC92',
   allow: '#000000',
 };
 
+function drawBorder(){
+  const length = 9 * boxSize + 2 * blockBorder;
+  const sizeArr = [];
+  sizeArr.push({x: 3 * boxSize, y: 0, w: blockBorder, h:length});
+  sizeArr.push({x: 6 * boxSize + blockBorder, y: 0, w: blockBorder, h:length});
+  sizeArr.push({x: 0, y: 3 * boxSize, w: length, h: blockBorder});
+  sizeArr.push({x: 0, y: 6 * boxSize + blockBorder, w: length, h: blockBorder});
+  for(let size of sizeArr){
+      Crafty.e('2D, Canvas, Color')
+        .attr(size)
+        .color(color.border);
+  }
+}
+
+/**
+ * input  : row OR col
+ * return : px
+ */
+function slice (rowOrCol) {
+  return rowOrCol * boxSize + parseInt(rowOrCol / 3) * blockBorder;
+}
 function Box(row, col, inRow, inCol, inBlock) {
   this.setNumber = 0;
   this.row = inRow;
   this.col = inCol;
   this.block = inBlock;
   this.attr = {
-    x: col * boxSize,
-    y: row * boxSize,
+    x: slice(col),
+    y: slice(row),
     w: boxSize - boxBorder,
     h: boxSize - boxBorder,
     alpha: 0.3,
@@ -25,8 +48,22 @@ function Box(row, col, inRow, inCol, inBlock) {
   this.attr.xEnd = this.attr.x + this.attr.w;
   this.attr.yEnd = this.attr.y + this.attr.h;
 
-  //small note
   this.guiInstance = Crafty.e('2D, Canvas, Color, Mouse').attr(this.attr).color('white');
+  //border
+  Crafty.e('2D, Canvas, Color').attr({
+    x: this.attr.x + boxSize - boxBorder,
+    y: this.attr.y,
+    w: boxBorder,
+    h: boxSize,
+  }).color(color.border);
+  Crafty.e('2D, Canvas, Color').attr({
+    x: this.attr.x,
+    y: this.attr.y + boxSize - boxBorder,
+    w: boxSize,
+    h: boxBorder,
+  }).color(color.border);
+
+  //small note
   this.mayAnswer = [
     true, true, true,
     true, true, true,
@@ -202,6 +239,7 @@ function Boxes() {
 
   this.init = function () {
     // draw border
+    drawBorder();
     // init Box group
     initBoxGroup(this._rows, 'row');
     initBoxGroup(this._cols, 'col');
