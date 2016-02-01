@@ -6,12 +6,12 @@
 const boxSize = 90;
 const boxBorder = 2;
 const color = {
-  notAllow: '#ffffff',
+  notAllow: '#E0BC92',
   allow: '#000000',
 };
 
 function Box(row, col, inRow, inCol, inBlock) {
-  this.isSet = false;
+  this.setNumber = 0;
   this.row = inRow;
   this.col = inCol;
   this.block = inBlock;
@@ -85,16 +85,21 @@ function Box(row, col, inRow, inCol, inBlock) {
         smallNote.attr({visible: false})
       });
       this.textInstance.text(number + 1).attr({visible: true});
-      this.isSet = true;
+      this.setNumber = number;
     }
   };
 
-  this.unset = function () {
+  this.unset = function (number) {
+    // logic
+    this.row.unset(number);
+    this.col.unset(number);
+    this.block.unset(number);
+    // gui
     this.textInstance.attr({visible: false});
     this.guiMayAnswer.map(function (smallNote) {
       smallNote.attr({visible: true})
     });
-    this.isSet = false;
+    this.setNumber = 0;
   };
   const obj = this;
   // binding event
@@ -110,8 +115,8 @@ function Box(row, col, inRow, inCol, inBlock) {
     } else if (mouseEvent.mouseButton === Crafty.mouseButtons.LEFT) {
 
       // 左键单击，选择1-9
-      if (obj.isSet) {
-        obj.unset();
+      if (obj.setNumber) {
+        obj.unset(obj.setNumber);
       } else {
         const i = getIndex(mouseEvent.x - obj.attr.x, mouseEvent.y - obj.attr.y);
         obj.set(i);
