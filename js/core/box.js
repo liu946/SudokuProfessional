@@ -10,10 +10,11 @@ const color = {
   allow: '#000000',
 };
 
-function box(row, col) {
+function Box(row, col, inRow, inCol, inBlock) {
   this.isSet = false;
-  this.row = row;
-  this.col = col;
+  this.row = inRow;
+  this.col = inCol;
+  this.block = inBlock;
   this.attr = {
     x: col * boxSize,
     y: row * boxSize,
@@ -27,9 +28,9 @@ function box(row, col) {
   //small note
   this.guiInstance = Crafty.e('2D, Canvas, Color, Mouse').attr(this.attr).color('white');
   this.mayAnswer = [
-    true, false, true,
-    true, false, true,
-    true, false, true,
+    true, true, true,
+    true, true, true,
+    true, true, true,
   ];
   this.guiMayAnswer = [];
   const small9size = {
@@ -59,7 +60,7 @@ function box(row, col) {
     return smallRow * 3 + smallCol;
   }
 
-  this.textInstance = Crafty.e("2D, DOM, Text")
+  this.textInstance = Crafty.e('2D, DOM, Text')
     .attr({
       x: this.attr.x,
       y: this.attr.y,
@@ -67,19 +68,30 @@ function box(row, col) {
     })
     .textFont({size: '60px', weight: 'bold'})
     .textColor(color.allow);
+  this.canSet = function (number) {
+    return this.row.canSet(number) && this.col.canSet(number) && this.block.canSet(number);
+  };
 
   this.set = function (number) {
-    // remove notes
-    this.guiMayAnswer.map(function(smallNote){
-      smallNote.attr({visible: false})
-    });
-    this.textInstance.text(number).attr({visible: true});
-    this.isSet = true;
+    if (this.canSet(number)){
+
+      // logic
+      this.row.set(number);
+      this.col.set(number);
+      this.block.set(number);
+      // gui
+      // remove notes
+      this.guiMayAnswer.map(function (smallNote) {
+        smallNote.attr({visible: false})
+      });
+      this.textInstance.text(number + 1).attr({visible: true});
+      this.isSet = true;
+    }
   };
 
   this.unset = function () {
     this.textInstance.attr({visible: false});
-    this.guiMayAnswer.map(function(smallNote){
+    this.guiMayAnswer.map(function (smallNote) {
       smallNote.attr({visible: true})
     });
     this.isSet = false;
@@ -102,23 +114,95 @@ function box(row, col) {
         obj.unset();
       } else {
         const i = getIndex(mouseEvent.x - obj.attr.x, mouseEvent.y - obj.attr.y);
-        obj.set(i + 1);
+        obj.set(i);
       }
     }
   });
-
+  this.removePossible = function (number) {
+    this.mayAnswer[number] = false;
+    this.drawMayAnswer();
+  };
+  this.addPossible = function (number) {
+    if(this.canSet(number)){
+      this.mayAnswer[number] = true;
+      this.drawMayAnswer();
+    }
+  };
 }
 
-function boxes() {
+function BoxGroup(name) {
   this._boxs = [];
+  this.name = name;
+  this.addBox = function (box) {
+    this._boxs.push(box);
+  };
+  this.mayAnswer = [
+    true, true, true,
+    true, true, true,
+    true, true, true,
+  ];
+  this.set = function (number) {
+    if (this.mayAnswer[number]) {
+      this.mayAnswer[number] = false;
+      this._boxs.map(function (box){
+        box.removePossible(number);
+      });
+    } else {
+      alert('can\'t set ' + number + ' in ' + this.name);
+    }
+  };
+
+  this.unset = function (number) {
+    if (this.mayAnswer[number]) {
+      alert('[ERROR] can\'t unset ' + number + ' in ' + this.name);
+    } else {
+      this.mayAnswer[number] = true;
+      this._boxs.map(function (box) {
+        box.addPossible(number);
+      });
+    }
+  };
+
+  this.canSet = function (number) {
+    return this.mayAnswer[number];
+  }
+}
+
+function initBoxGroup(groupArray, arrName) {
+  for (let i = 0; i < 9; i++) {
+    groupArray[i] = new BoxGroup(arrName + i);
+    groupArray[i].index = i;
+  }
+}
+
+function initBoxes(boxArray, boxRow, boxCol, boxBlock) {
+  for (let index = 0; index < 81; index++) {
+    const row = parseInt(index / 9);
+    const col = index % 9;
+    const block = parseInt(row / 3) * 3 + parseInt(col / 3);
+    const box = new Box(row, col, boxRow[row], boxCol[col], boxBlock[block]);
+    box.index = index;
+    boxRow[row].addBox(box);
+    boxCol[col].addBox(box);
+    boxBlock[block].addBox(box);
+    boxArray.push(box);
+  }
+}
+
+function Boxes() {
+  this._boxs = []; // 81 block
+  this._rows = []; // 9
+  this._cols = []; // 9
+  this._blocks = []; // 9
 
   this.init = function () {
     // draw border
-
-    // draw boxes
-    for (let index = 0; index < 81; index++) {
-      this._boxs[index] = new box(parseInt(index / 9), index % 9);
-    }
+    // init Box group
+    initBoxGroup(this._rows, 'row');
+    initBoxGroup(this._cols, 'col');
+    initBoxGroup(this._blocks, 'block');
+    // init boxes
+    initBoxes(this._boxs, this._rows, this._cols, this._blocks);
   };
 
   this.init();
