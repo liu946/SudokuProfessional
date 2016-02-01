@@ -1,4 +1,14 @@
 {
-  "name": "helloworld",
-  "main": "index.html"
+  "name": "Sudoku Professional",
+  "main": "index.html",
+  "window": {
+    "title": "Sudoku Professional",
+    "toolbar": true,
+    "width": 910,
+    "height": 810,
+    "position": "mouse"
+  },
+  "webkit": {
+    "plugin": true
+  }
 }
