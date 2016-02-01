@@ -4,8 +4,8 @@
   "window": {
     "title": "Sudoku Professional",
     "toolbar": true,
-    "width": 910,
-    "height": 810,
+    "width": 960,
+    "height": 860,
     "position": "mouse"
   },
   "webkit": {

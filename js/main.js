@@ -8,7 +8,7 @@ $(function(){
   const crafty = Crafty.init(910,810, document.getElementById('game'));
   initConfig();
 
-  const box = new boxs();
+  const box = new boxes();
 
 
 });
