@@ -5,12 +5,12 @@
 'use strict';
 
 const preLoadingfile = [
-  'http://pic.58pic.com/58pic/12/95/54/09u58PICJjE.jpg',
+  'resourse/image/background.png',
 ];
 
 
 function initConfig() {
   Crafty.load(preLoadingfile);
 
-  Crafty.background('#FFFFFF url(resourse/image/background.png)');
+  Crafty.background('#E0BC92 url(resourse/image/background.png)');
 }
