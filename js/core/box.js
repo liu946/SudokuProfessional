@@ -3,6 +3,7 @@
  */
 'use strict';
 
+const startPoint = {x: 5, y: 5};
 const boxSize = 90;
 const boxBorder = 1;
 const blockBorder = 2;
@@ -12,17 +13,22 @@ const color = {
   allow: '#000000',
 };
 
+function translate(attr){
+  attr.x = startPoint.x + attr.x;
+  attr.y = startPoint.y + attr.y;
+  return attr;
+}
+
 function drawBorder(){
   const length = 9 * boxSize + 2 * blockBorder;
   const sizeArr = [];
-  sizeArr.push({x: 3 * boxSize, y: 0, w: blockBorder, h:length});
-  sizeArr.push({x: 6 * boxSize + blockBorder, y: 0, w: blockBorder, h:length});
-  sizeArr.push({x: 0, y: 3 * boxSize, w: length, h: blockBorder});
-  sizeArr.push({x: 0, y: 6 * boxSize + blockBorder, w: length, h: blockBorder});
-  for(let size of sizeArr){
-      Crafty.e('2D, Canvas, Color')
-        .attr(size)
-        .color(color.border);
+  for (let i = 0; i < 4; i++) {
+    let size = {x: i * 3 * boxSize + i * blockBorder, y: blockBorder, w: blockBorder, h:length};
+    Crafty.e('2D, Canvas, Color').attr(translate(size)).color(color.border);
+  }
+  for (let i = 0; i < 4; i++) {
+    let size = {x: blockBorder, y: i * 3 * boxSize + i * blockBorder, w: length, h: blockBorder};
+    Crafty.e('2D, Canvas, Color').attr(translate(size)).color(color.border);
   }
 }
 
@@ -31,7 +37,7 @@ function drawBorder(){
  * return : px
  */
 function slice (rowOrCol) {
-  return rowOrCol * boxSize + parseInt(rowOrCol / 3) * blockBorder;
+  return rowOrCol * boxSize + parseInt(rowOrCol / 3 + 1) * blockBorder;
 }
 function Box(row, col, inRow, inCol, inBlock) {
   this.setNumber = 0;
@@ -48,7 +54,7 @@ function Box(row, col, inRow, inCol, inBlock) {
   this.attr.xEnd = this.attr.x + this.attr.w;
   this.attr.yEnd = this.attr.y + this.attr.h;
 
-  this.guiInstance = Crafty.e('2D, Canvas, Color, Mouse').attr(this.attr).color('white');
+  this.guiInstance = Crafty.e('2D, Canvas, Color, Mouse').attr(translate(this.attr)).color('white');
   //border
   Crafty.e('2D, Canvas, Color').attr({
     x: this.attr.x + boxSize - boxBorder,
@@ -98,11 +104,11 @@ function Box(row, col, inRow, inCol, inBlock) {
   }
 
   this.textInstance = Crafty.e('2D, DOM, Text')
-    .attr({
+    .attr(translate({
       x: this.attr.x,
       y: this.attr.y,
       visible: false,
-    })
+    }))
     .textFont({size: '60px', weight: 'bold'})
     .textColor(color.allow);
   this.canSet = function (number) {
