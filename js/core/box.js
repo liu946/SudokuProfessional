@@ -7,6 +7,8 @@ const startPoint = {x: 5, y: 5};
 const boxSize = 90;
 const boxBorder = 1;
 const blockBorder = 2;
+const notePosFix = {x: 9, y: 4};
+const numberPosFix = {x: 23, y: 8};
 const color = {
   border: '#000000',
   notAllow: '#E0BC92',
@@ -21,7 +23,6 @@ function translate(attr){
 
 function drawBorder(){
   const length = 9 * boxSize + 2 * blockBorder;
-  const sizeArr = [];
   for (let i = 0; i < 4; i++) {
     let size = {x: i * 3 * boxSize + i * blockBorder, y: blockBorder, w: blockBorder, h:length};
     Crafty.e('2D, Canvas, Color').attr(translate(size)).color(color.border);
@@ -39,8 +40,49 @@ function drawBorder(){
 function slice (rowOrCol) {
   return rowOrCol * boxSize + parseInt(rowOrCol / 3 + 1) * blockBorder;
 }
+
+function guiMayAnswer(obj) {
+  this.mayAnswer = [];
+  const small9size = {
+    w: obj.attr.w / 3,
+    h: obj.attr.h / 3,
+  };
+  for (let i = 0; i < 9; i++) {
+    this.mayAnswer[i] = Crafty.e("2D, DOM, Text")
+      .attr({
+        x: obj.attr.x + small9size.w * parseInt(i % 3) + notePosFix.x,
+        y: obj.attr.y + small9size.h * parseInt(i / 3) + notePosFix.y,
+      })
+      .textFont({size: '20px', weight: 'bold'})
+      .text(i + 1)
+      .textColor(color.allow);
+  }
+  this.draw = function () {
+    for (let i = 0; i < 9; i++) {
+      this.mayAnswer[i].textColor(obj.mayAnswer[i] ? color.allow : color.notAllow);
+    }
+    return this;
+  };
+  this.getIndex = function (rx, ry) {
+    const smallCol = parseInt(rx / small9size.w);
+    const smallRow = parseInt(ry / small9size.h);
+    return smallRow * 3 + smallCol;
+  };
+  this.remove = function () {
+    this.mayAnswer.map(function (smallNote) {
+      smallNote.attr({visible: false})
+    });
+  };
+  this.unRemove = function () {
+    this.mayAnswer.map(function (smallNote) {
+      smallNote.attr({visible: true})
+    });
+  };
+  return this;
+}
+
 function Box(row, col, inRow, inCol, inBlock) {
-  this.setNumber = 0;
+  this.setNumber = null;
   this.row = inRow;
   this.col = inCol;
   this.block = inBlock;
@@ -75,38 +117,13 @@ function Box(row, col, inRow, inCol, inBlock) {
     true, true, true,
     true, true, true,
   ];
-  this.guiMayAnswer = [];
-  const small9size = {
-    w: this.attr.w / 3,
-    h: this.attr.h / 3,
-  };
-  for (let i = 0; i < 9; i++) {
-    this.guiMayAnswer[i] = Crafty.e("2D, DOM, Text")
-      .attr({
-        x: this.attr.x + small9size.w * parseInt(i % 3),
-        y: this.attr.y + small9size.h * parseInt(i / 3),
-      })
-      .textFont({size: '20px', weight: 'bold'})
-      .text(i + 1)
-      .textColor(color.allow);
-  }
-  this.drawMayAnswer = function () {
-    for (let i = 0; i < 9; i++) {
-      this.guiMayAnswer[i].textColor(this.mayAnswer[i] ? color.allow : color.notAllow);
-    }
-  };
-  this.drawMayAnswer();
 
-  function getIndex(rx, ry) {
-    const smallCol = parseInt(rx / small9size.w);
-    const smallRow = parseInt(ry / small9size.h);
-    return smallRow * 3 + smallCol;
-  }
+  this.guiMayAnswer = new guiMayAnswer(this).draw();
 
   this.textInstance = Crafty.e('2D, DOM, Text')
     .attr(translate({
-      x: this.attr.x,
-      y: this.attr.y,
+      x: this.attr.x + numberPosFix.x,
+      y: this.attr.y + numberPosFix.y,
       visible: false,
     }))
     .textFont({size: '60px', weight: 'bold'})
@@ -124,9 +141,7 @@ function Box(row, col, inRow, inCol, inBlock) {
       this.block.set(number);
       // gui
       // remove notes
-      this.guiMayAnswer.map(function (smallNote) {
-        smallNote.attr({visible: false})
-      });
+      this.guiMayAnswer.remove();
       this.textInstance.text(number + 1).attr({visible: true});
       this.setNumber = number;
     }
@@ -139,10 +154,8 @@ function Box(row, col, inRow, inCol, inBlock) {
     this.block.unset(number);
     // gui
     this.textInstance.attr({visible: false});
-    this.guiMayAnswer.map(function (smallNote) {
-      smallNote.attr({visible: true})
-    });
-    this.setNumber = 0;
+    this.guiMayAnswer.unRemove();
+    this.setNumber = null;
   };
   const obj = this;
   // binding event
@@ -151,29 +164,29 @@ function Box(row, col, inRow, inCol, inBlock) {
     if (mouseEvent.mouseButton === Crafty.mouseButtons.MIDDLE) {
 
       // 右键单击，切换可选状态
-      const i = getIndex(mouseEvent.x - obj.attr.x, mouseEvent.y - obj.attr.y);
+      const i = obj.guiMayAnswer.getIndex(mouseEvent.x - obj.attr.x, mouseEvent.y - obj.attr.y);
       obj.mayAnswer[i] = (!obj.mayAnswer[i]);
-      obj.drawMayAnswer();
+      obj.guiMayAnswer.draw();
 
     } else if (mouseEvent.mouseButton === Crafty.mouseButtons.LEFT) {
 
       // 左键单击，选择1-9
-      if (obj.setNumber) {
+      if (obj.setNumber !== null) {
         obj.unset(obj.setNumber);
       } else {
-        const i = getIndex(mouseEvent.x - obj.attr.x, mouseEvent.y - obj.attr.y);
+        const i = obj.guiMayAnswer.getIndex(mouseEvent.x - obj.attr.x, mouseEvent.y - obj.attr.y);
         obj.set(i);
       }
     }
   });
   this.removePossible = function (number) {
     this.mayAnswer[number] = false;
-    this.drawMayAnswer();
+    this.guiMayAnswer.draw();
   };
   this.addPossible = function (number) {
     if(this.canSet(number)){
       this.mayAnswer[number] = true;
-      this.drawMayAnswer();
+      this.guiMayAnswer.draw();
     }
   };
 }
