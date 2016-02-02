@@ -13,6 +13,7 @@ const color = {
   border: '#000000',
   notAllow: '#E0BC92',
   allow: '#000000',
+  onlyInput: '#00CD66',
 };
 
 function translate(attr){
@@ -78,14 +79,18 @@ function guiMayAnswer(obj) {
       smallNote.attr({visible: true})
     });
   };
+  this.showOnlyInput = function (number) {
+    this.mayAnswer[number].textColor(color.onlyInput);
+  };
   return this;
 }
 
-function Box(row, col, inRow, inCol, inBlock) {
+function Box(row, col, inRow, inCol, inBlock, inBoxes) {
   this.setNumber = null;
   this.row = inRow;
   this.col = inCol;
   this.block = inBlock;
+  this.boxes = inBoxes;
   this.attr = {
     x: slice(col),
     y: slice(row),
@@ -144,6 +149,7 @@ function Box(row, col, inRow, inCol, inBlock) {
       this.guiMayAnswer.remove();
       this.textInstance.text(number + 1).attr({visible: true});
       this.setNumber = number;
+
     }
   };
 
@@ -178,6 +184,7 @@ function Box(row, col, inRow, inCol, inBlock) {
         obj.set(i);
       }
     }
+    obj.boxes.showOnlyInput();
   });
   this.removePossible = function (number) {
     this.mayAnswer[number] = false;
@@ -226,6 +233,31 @@ function BoxGroup(name) {
 
   this.canSet = function (number) {
     return this.mayAnswer[number];
+  };
+
+  this.showOnlyInput = function () {
+    const onlyMark = [0,0,0, 0,0,0, 0,0,0]; // 0 for can't set; Object for only ; null for more
+    this._boxs.map(function (box) {
+      if (! box.setNumber) {
+        for (let i = 0; i < 9; i++) {
+          if (box.mayAnswer[i] && (onlyMark[i] !== null)) {
+            // 本格可以填i，而且该格没有超2
+            if (onlyMark[i]) { // 放入其他的obj
+              onlyMark[i] = null;
+            } else { // 放入0
+              onlyMark[i] = box; // 唯一放入此box
+            }
+          }
+        }
+      }
+    });
+    // 让格子显示可以填写的内容
+    for (let i = 0; i < 9; i++) {
+      if (onlyMark[i]) {
+        onlyMark[i].guiMayAnswer.showOnlyInput(i);
+      }
+    }
+
   }
 }
 
@@ -236,12 +268,12 @@ function initBoxGroup(groupArray, arrName) {
   }
 }
 
-function initBoxes(boxArray, boxRow, boxCol, boxBlock) {
+function initBoxes(boxArray, boxRow, boxCol, boxBlock, boxes) {
   for (let index = 0; index < 81; index++) {
     const row = parseInt(index / 9);
     const col = index % 9;
     const block = parseInt(row / 3) * 3 + parseInt(col / 3);
-    const box = new Box(row, col, boxRow[row], boxCol[col], boxBlock[block]);
+    const box = new Box(row, col, boxRow[row], boxCol[col], boxBlock[block], boxes);
     box.index = index;
     boxRow[row].addBox(box);
     boxCol[col].addBox(box);
@@ -256,6 +288,18 @@ function Boxes() {
   this._cols = []; // 9
   this._blocks = []; // 9
 
+  this.eachBoxGroup = function (functionName, arg) {
+    this._rows.map(function(nameGroup) { nameGroup[functionName](arg); });
+    this._cols.map(function(nameGroup) { nameGroup[functionName](arg); });
+    this._blocks.map(function(nameGroup) { nameGroup[functionName](arg); });
+  };
+
+  // showOnlyInput
+  this.showOnlyInput =  function () {
+    // draw onlyAnswer
+    this.eachBoxGroup('showOnlyInput');
+  };
+
   this.init = function () {
     // draw border
     drawBorder();
@@ -264,7 +308,7 @@ function Boxes() {
     initBoxGroup(this._cols, 'col');
     initBoxGroup(this._blocks, 'block');
     // init boxes
-    initBoxes(this._boxs, this._rows, this._cols, this._blocks);
+    initBoxes(this._boxs, this._rows, this._cols, this._blocks, this);
   };
 
   this.init();
