@@ -3,19 +3,6 @@
  */
 'use strict';
 
-const startPoint = {x: 5, y: 5};
-const boxSize = 90;
-const boxBorder = 1;
-const blockBorder = 2;
-const notePosFix = {x: 9, y: 4};
-const numberPosFix = {x: 23, y: 8};
-const color = {
-  border: '#000000',
-  notAllow: '#E0BC92',
-  allow: '#000000',
-  onlyInput: '#00CD66',
-};
-
 function translate(attr){
   attr.x = startPoint.x + attr.x;
   attr.y = startPoint.y + attr.y;
@@ -196,19 +183,44 @@ function Box(row, col, inRow, inCol, inBlock, inBoxes) {
       this.guiMayAnswer.draw();
     }
   };
+  /**
+   * return show number if only
+   * @returns 0-9
+   */
+  this.returnOnlyPossible = function () {
+    let onlyPossible = 0;
+    for (let i = 0; i < 9; i++) {
+      if (this.mayAnswer[i]) {
+        if (onlyPossible) {
+          return false;
+        } else {
+          onlyPossible = (i + 1);
+        }
+      }
+    }
+    return onlyPossible;
+  };
+  this.autoFill = function () {
+    const onlyPossible = this.returnOnlyPossible();
+    if (onlyPossible && this.setNumber === null) {
+      this.set(onlyPossible - 1);
+      return true;
+    }
+    return false;
+  }
 }
 
 function BoxGroup(name) {
   this._boxs = [];
   this.name = name;
-  this.addBox = function (box) {
-    this._boxs.push(box);
-  };
   this.mayAnswer = [
     true, true, true,
     true, true, true,
     true, true, true,
   ];
+  this.addBox = function (box) {
+    this._boxs.push(box);
+  };
   this.set = function (number) {
     if (this.mayAnswer[number]) {
       this.mayAnswer[number] = false;
@@ -252,12 +264,23 @@ function BoxGroup(name) {
       }
     });
     // 让格子显示可以填写的内容
+    let returnFillField = false;
     for (let i = 0; i < 9; i++) {
       if (onlyMark[i]) {
         onlyMark[i].guiMayAnswer.showOnlyInput(i);
+        returnFillField = {box: onlyMark[i], number: i}; // 返回可以设置的句柄
       }
     }
+    return returnFillField; // 如果没有可填入的，返回false
+  };
 
+  this.autoFill = function() {
+    const autoFillbox = this.showOnlyInput();
+    if (autoFillbox) {
+      autoFillbox.box.set(autoFillbox.number);
+      return true;
+    }
+    return false;
   }
 }
 
@@ -283,21 +306,55 @@ function initBoxes(boxArray, boxRow, boxCol, boxBlock, boxes) {
 }
 
 function Boxes() {
-  this._boxs = []; // 81 block
+  this._boxs = []; // 81 box
   this._rows = []; // 9
   this._cols = []; // 9
   this._blocks = []; // 9
 
   this.eachBoxGroup = function (functionName, arg) {
-    this._rows.map(function(nameGroup) { nameGroup[functionName](arg); });
-    this._cols.map(function(nameGroup) { nameGroup[functionName](arg); });
-    this._blocks.map(function(nameGroup) { nameGroup[functionName](arg); });
+    this._boxGroup.map(function(nameGroup) { nameGroup[functionName](arg); });
   };
 
-  // showOnlyInput
+  /**
+   * 功能：显示可以唯一填入的
+   */
   this.showOnlyInput =  function () {
+    // repaint all box
+    this._boxs.map(function(box) {box.guiMayAnswer.draw()});
     // draw onlyAnswer
     this.eachBoxGroup('showOnlyInput');
+    this._boxs.map(function(box) {
+      const onlyPossible = box.returnOnlyPossible();
+      if (onlyPossible) {
+        box.guiMayAnswer.showOnlyInput(onlyPossible - 1);
+      }
+    });
+  };
+
+  /**
+   * 功能：自动填入可填入的数字
+   */
+  const boxes = this;
+  this.autoFill = function() {
+    for (let boxGroup of this._boxGroup) {
+      if (boxGroup.autoFill()) {
+        //延时
+        setTimeout(function() {
+          boxes.autoFill(); // 重新开始自动填充
+        }, autoFillRemainTime);
+        return;
+      }
+    }
+    // 每个box判断自填充
+    for (let box of this._boxs) {
+      if (box.autoFill()) {
+        //延时
+        setTimeout(function() {
+          boxes.autoFill(); // 重新开始自动填充
+        }, autoFillRemainTime);
+        return;
+      }
+    }
   };
 
   this.init = function () {
@@ -309,8 +366,9 @@ function Boxes() {
     initBoxGroup(this._blocks, 'block');
     // init boxes
     initBoxes(this._boxs, this._rows, this._cols, this._blocks, this);
+    // box Group list
+    this._boxGroup = this._rows.concat(this._cols, this._blocks);
   };
-
   this.init();
   return this;
 
