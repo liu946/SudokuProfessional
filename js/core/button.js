@@ -6,7 +6,7 @@
 
 let buttonIndex = -1;
 
-function initButton(name, cb) {
+function GameFunctionButton(name, cb) {
   buttonIndex++;
   this.attr = {
     x: buttonStart.x,
@@ -27,11 +27,15 @@ function initButton(name, cb) {
     .textColor('white');
 
   this.guiInstance.bind('Click',cb);
+  return this;
 }
 
 function initButtons(boxes) {
   const buttonList = [];
-  buttonList.push(new initButton('AutoFill',function(mouseEvent) {
+  buttonList.push(new GameFunctionButton('AutoFill',function(mouseEvent) {
     boxes.autoFill();
+  }));
+  buttonList.push(new GameFunctionButton('ResetAll',function(mouseEvent) {
+    boxes.resetAll();
   }));
 }

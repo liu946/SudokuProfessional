@@ -115,9 +115,9 @@ function Box(row, col, inRow, inCol, inBlock, inBoxes) {
       this.guiMayAnswer.draw();
     }
   };
+
   /**
-   * return show number if only
-   * @returns 0-9
+   * @returns 0-9 show number if only
    */
   this.returnOnlyPossible = function () {
     let onlyPossible = 0;
@@ -139,7 +139,36 @@ function Box(row, col, inRow, inCol, inBlock, inBoxes) {
       return true;
     }
     return false;
-  }
+  };
+
+  /**
+   * @description set guiMayAnswer
+   * @note 注意这个方法不能直接给this.mayAnswer赋值
+   * @param array 10长，0-8是mayAnswer的值，9是this.setNumber;
+   * @param clear
+   */
+  this.setMayAnswer = function(array) {
+    this.setNumber = array[9];
+    this.textInstance.attr({visible: this.setNumber !== null});
+    for (var i = 0; i < 9; i++) {
+      this.mayAnswer[i] = array[i];
+    }
+    this.guiMayAnswer.draw();
+  };
+
+  /**
+   * @description get guiMayAnswer
+   * @note 注意这个方法不能直接返回
+   */
+  this.getMayAnswer = function() {
+    var array = [];
+    for (var i = 0; i < 9; i++) {
+      array[i] = this.mayAnswer[i];
+    }
+    array[9] = this.setNumber;
+    return array;
+  };
+
 }
 
 /**

@@ -76,6 +76,28 @@ function BoxGroup(name) {
     }
     return false;
   }
+
+  /**
+   * @description set guiMayAnswer
+   * @note 注意这个方法不能直接给this.mayAnswer赋值
+   */
+  this.setMayAnswer = function(array) {
+    for (var i = 0; i < 9; i++) {
+      this.mayAnswer[i] = array[i];
+    }
+  };
+
+  /**
+   * @description get guiMayAnswer
+   * @note 注意这个方法不能直接返回
+   */
+  this.getMayAnswer = function() {
+    var array = [];
+    for (var i = 0; i < 9; i++) {
+      array[i] = this.mayAnswer[i];
+    }
+    return array;
+  };
 }
 
 function initBoxGroup(groupArray, arrName) {

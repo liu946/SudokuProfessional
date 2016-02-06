@@ -41,7 +41,7 @@ function Boxes() {
   };
 
   /**
-   * 功能：自动填入可填入的数字
+   * @description 功能：自动填入可填入的数字
    */
   const boxes = this;
   this.autoFill = function() {
@@ -64,6 +64,24 @@ function Boxes() {
         return;
       }
     }
+  };
+
+  /**
+   * @description 功能：重设所有的box
+   */
+
+  this.resetAll = function() {
+    const trueOf9 =
+      [
+        true, true, true,
+        true, true, true,
+        true, true, true,
+        null
+      ];
+    this.eachBoxGroup('setMayAnswer', trueOf9);
+    this._boxs.map(function(box) {
+      box.setMayAnswer(trueOf9);
+    });
   };
 
   this.init = function () {

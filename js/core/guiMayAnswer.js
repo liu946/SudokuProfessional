@@ -22,7 +22,9 @@ function guiMayAnswer(obj) {
   }
   this.draw = function () {
     for (let i = 0; i < 9; i++) {
-      this.mayAnswer[i].textColor(obj.mayAnswer[i] ? color.allow : color.notAllow);
+      this.mayAnswer[i]
+        .textColor(obj.mayAnswer[i] ? color.allow : color.notAllow)
+        .attr({visible: obj.setNumber === null});
     }
     return this;
   };
