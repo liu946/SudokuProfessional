@@ -18,10 +18,12 @@ function initButton(name, cb) {
   this.guiInstance = Crafty.e('2D, Canvas, Color, Mouse').attr(translate(this.attr)).color('black');
   this.textInstance = Crafty.e('2D, DOM, Text')
     .attr(translate({
-      x: this.attr.x + 10,
+      x: this.attr.x + 5,
       y: this.attr.y + buttonSize.h * 0.2,
     }))
-    .textFont({size: parseInt(buttonSize.h * 0.6) + 'px'})
+    .textFont({size: parseInt(buttonSize.h * 0.4) + 'px'})
+    .text(name)
+    .unselectable()
     .textColor('white');
 
   this.guiInstance.bind('Click',cb);
@@ -29,7 +31,7 @@ function initButton(name, cb) {
 
 function initButtons(boxes) {
   const buttonList = [];
-  buttonList.push(new initButton('自动填充',function(mouseEvent) {
+  buttonList.push(new initButton('AutoFill',function(mouseEvent) {
     boxes.autoFill();
   }));
 }
