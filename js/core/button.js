@@ -38,4 +38,10 @@ function initButtons(boxes) {
   buttonList.push(new GameFunctionButton('ResetAll',function(mouseEvent) {
     boxes.resetAll();
   }));
+  buttonList.push(new GameFunctionButton('TakeShot',function(mouseEvent) {
+    boxes.shot();
+  }));
+  buttonList.push(new GameFunctionButton('ResetShot',function(mouseEvent) {
+    boxes.resetShot();
+  }));
 }

@@ -19,6 +19,9 @@ function Boxes() {
   this._rows = []; // 9
   this._cols = []; // 9
   this._blocks = []; // 9
+  this._boxGroup = []; // 27
+  this.quickShot = {};
+  const boxes = this;
 
   this.eachBoxGroup = function (functionName, arg) {
     this._boxGroup.map(function(nameGroup) { nameGroup[functionName](arg); });
@@ -43,7 +46,6 @@ function Boxes() {
   /**
    * @description 功能：自动填入可填入的数字
    */
-  const boxes = this;
   this.autoFill = function() {
     for (let boxGroup of this._boxGroup) {
       if (boxGroup.autoFill()) {
@@ -69,7 +71,6 @@ function Boxes() {
   /**
    * @description 功能：重设所有的box
    */
-
   this.resetAll = function() {
     const trueOf9 =
       [
@@ -83,6 +84,25 @@ function Boxes() {
       box.setMayAnswer(trueOf9);
     });
   };
+
+  /**
+   * @description 功能：建立快照
+   */
+  this.shot = function() {
+    this.quickShot.boxGroup = this._boxGroup.map(function(boxGroup) { return boxGroup.getMayAnswer();})
+    this.quickShot.boxs = this._boxs.map(function(box) {return box.getMayAnswer();})
+  };
+
+  this.resetShot = function() {
+    this.quickShot.boxGroup.map(function (value, key) {
+      boxes._boxGroup[key].setMayAnswer(value);
+    });
+    this.quickShot.boxs.map(function (value, key) {
+      boxes._boxs[key].setMayAnswer(value);
+    });
+    this.showOnlyInput();
+  };
+
 
   this.init = function () {
     // draw border

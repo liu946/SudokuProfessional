@@ -150,6 +150,7 @@ function Box(row, col, inRow, inCol, inBlock, inBoxes) {
   this.setMayAnswer = function(array) {
     this.setNumber = array[9];
     this.textInstance.attr({visible: this.setNumber !== null});
+    if (this.setNumber !== null) this.textInstance.text(this.setNumber + 1);
     for (var i = 0; i < 9; i++) {
       this.mayAnswer[i] = array[i];
     }
