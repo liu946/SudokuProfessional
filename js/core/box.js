@@ -1,76 +1,8 @@
 /**
- * Created by liu on 16/2/1.
+ * Created by liu on 16/2/6.
  */
+
 'use strict';
-
-function translate(attr){
-  attr.x = startPoint.x + attr.x;
-  attr.y = startPoint.y + attr.y;
-  return attr;
-}
-
-function drawBorder(){
-  const length = 9 * boxSize + 2 * blockBorder;
-  for (let i = 0; i < 4; i++) {
-    let size = {x: i * 3 * boxSize + i * blockBorder, y: blockBorder, w: blockBorder, h:length};
-    Crafty.e('2D, Canvas, Color').attr(translate(size)).color(color.border);
-  }
-  for (let i = 0; i < 4; i++) {
-    let size = {x: blockBorder, y: i * 3 * boxSize + i * blockBorder, w: length, h: blockBorder};
-    Crafty.e('2D, Canvas, Color').attr(translate(size)).color(color.border);
-  }
-}
-
-/**
- * input  : row OR col
- * return : px
- */
-function slice (rowOrCol) {
-  return rowOrCol * boxSize + parseInt(rowOrCol / 3 + 1) * blockBorder;
-}
-
-function guiMayAnswer(obj) {
-  this.mayAnswer = [];
-  const small9size = {
-    w: obj.attr.w / 3,
-    h: obj.attr.h / 3,
-  };
-  for (let i = 0; i < 9; i++) {
-    this.mayAnswer[i] = Crafty.e("2D, DOM, Text")
-      .attr({
-        x: obj.attr.x + small9size.w * parseInt(i % 3) + notePosFix.x,
-        y: obj.attr.y + small9size.h * parseInt(i / 3) + notePosFix.y,
-      })
-      .textFont({size: '20px', weight: 'bold'})
-      .text(i + 1)
-      .textColor(color.allow);
-  }
-  this.draw = function () {
-    for (let i = 0; i < 9; i++) {
-      this.mayAnswer[i].textColor(obj.mayAnswer[i] ? color.allow : color.notAllow);
-    }
-    return this;
-  };
-  this.getIndex = function (rx, ry) {
-    const smallCol = parseInt(rx / small9size.w);
-    const smallRow = parseInt(ry / small9size.h);
-    return smallRow * 3 + smallCol;
-  };
-  this.remove = function () {
-    this.mayAnswer.map(function (smallNote) {
-      smallNote.attr({visible: false})
-    });
-  };
-  this.unRemove = function () {
-    this.mayAnswer.map(function (smallNote) {
-      smallNote.attr({visible: true})
-    });
-  };
-  this.showOnlyInput = function (number) {
-    this.mayAnswer[number].textColor(color.onlyInput);
-  };
-  return this;
-}
 
 function Box(row, col, inRow, inCol, inBlock, inBoxes) {
   this.setNumber = null;
@@ -210,85 +142,13 @@ function Box(row, col, inRow, inCol, inBlock, inBoxes) {
   }
 }
 
-function BoxGroup(name) {
-  this._boxs = [];
-  this.name = name;
-  this.mayAnswer = [
-    true, true, true,
-    true, true, true,
-    true, true, true,
-  ];
-  this.addBox = function (box) {
-    this._boxs.push(box);
-  };
-  this.set = function (number) {
-    if (this.mayAnswer[number]) {
-      this.mayAnswer[number] = false;
-      this._boxs.map(function (box){
-        box.removePossible(number);
-      });
-    } else {
-      alert('can\'t set ' + number + ' in ' + this.name);
-    }
-  };
-
-  this.unset = function (number) {
-    if (this.mayAnswer[number]) {
-      alert('[ERROR] can\'t unset ' + number + ' in ' + this.name);
-    } else {
-      this.mayAnswer[number] = true;
-      this._boxs.map(function (box) {
-        box.addPossible(number);
-      });
-    }
-  };
-
-  this.canSet = function (number) {
-    return this.mayAnswer[number];
-  };
-
-  this.showOnlyInput = function () {
-    const onlyMark = [0,0,0, 0,0,0, 0,0,0]; // 0 for can't set; Object for only ; null for more
-    this._boxs.map(function (box) {
-      if (! box.setNumber) {
-        for (let i = 0; i < 9; i++) {
-          if (box.mayAnswer[i] && (onlyMark[i] !== null)) {
-            // 本格可以填i，而且该格没有超2
-            if (onlyMark[i]) { // 放入其他的obj
-              onlyMark[i] = null;
-            } else { // 放入0
-              onlyMark[i] = box; // 唯一放入此box
-            }
-          }
-        }
-      }
-    });
-    // 让格子显示可以填写的内容
-    let returnFillField = false;
-    for (let i = 0; i < 9; i++) {
-      if (onlyMark[i]) {
-        onlyMark[i].guiMayAnswer.showOnlyInput(i);
-        returnFillField = {box: onlyMark[i], number: i}; // 返回可以设置的句柄
-      }
-    }
-    return returnFillField; // 如果没有可填入的，返回false
-  };
-
-  this.autoFill = function() {
-    const autoFillbox = this.showOnlyInput();
-    if (autoFillbox) {
-      autoFillbox.box.set(autoFillbox.number);
-      return true;
-    }
-    return false;
-  }
-}
-
-function initBoxGroup(groupArray, arrName) {
-  for (let i = 0; i < 9; i++) {
-    groupArray[i] = new BoxGroup(arrName + i);
-    groupArray[i].index = i;
-  }
+/**
+ * Private function
+ * input  : row OR col
+ * return : px
+ */
+function slice (rowOrCol) {
+  return rowOrCol * boxSize + parseInt(rowOrCol / 3 + 1) * blockBorder;
 }
 
 function initBoxes(boxArray, boxRow, boxCol, boxBlock, boxes) {
@@ -303,73 +163,4 @@ function initBoxes(boxArray, boxRow, boxCol, boxBlock, boxes) {
     boxBlock[block].addBox(box);
     boxArray.push(box);
   }
-}
-
-function Boxes() {
-  this._boxs = []; // 81 box
-  this._rows = []; // 9
-  this._cols = []; // 9
-  this._blocks = []; // 9
-
-  this.eachBoxGroup = function (functionName, arg) {
-    this._boxGroup.map(function(nameGroup) { nameGroup[functionName](arg); });
-  };
-
-  /**
-   * 功能：显示可以唯一填入的
-   */
-  this.showOnlyInput =  function () {
-    // repaint all box
-    this._boxs.map(function(box) {box.guiMayAnswer.draw()});
-    // draw onlyAnswer
-    this.eachBoxGroup('showOnlyInput');
-    this._boxs.map(function(box) {
-      const onlyPossible = box.returnOnlyPossible();
-      if (onlyPossible) {
-        box.guiMayAnswer.showOnlyInput(onlyPossible - 1);
-      }
-    });
-  };
-
-  /**
-   * 功能：自动填入可填入的数字
-   */
-  const boxes = this;
-  this.autoFill = function() {
-    for (let boxGroup of this._boxGroup) {
-      if (boxGroup.autoFill()) {
-        //延时
-        setTimeout(function() {
-          boxes.autoFill(); // 重新开始自动填充
-        }, autoFillRemainTime);
-        return;
-      }
-    }
-    // 每个box判断自填充
-    for (let box of this._boxs) {
-      if (box.autoFill()) {
-        //延时
-        setTimeout(function() {
-          boxes.autoFill(); // 重新开始自动填充
-        }, autoFillRemainTime);
-        return;
-      }
-    }
-  };
-
-  this.init = function () {
-    // draw border
-    drawBorder();
-    // init Box group
-    initBoxGroup(this._rows, 'row');
-    initBoxGroup(this._cols, 'col');
-    initBoxGroup(this._blocks, 'block');
-    // init boxes
-    initBoxes(this._boxs, this._rows, this._cols, this._blocks, this);
-    // box Group list
-    this._boxGroup = this._rows.concat(this._cols, this._blocks);
-  };
-  this.init();
-  return this;
-
 }
