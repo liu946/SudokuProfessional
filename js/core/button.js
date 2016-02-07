@@ -40,6 +40,29 @@ function GameFunctionButton(name, cb) {
   });
   return this;
 }
+
+/**
+ * 文件操作相关按钮
+ * @extends GameFunctionButton
+ * @param name
+ * @param jqueryObj
+ * @param cb (fileName)
+ * @returns {FileOperationButton}
+ * @constructor
+ */
+function FileOperationButton(name, jqueryObj, cb) {
+  function openFileCb(event) {
+    jqueryObj.trigger('click');
+  }
+  jqueryObj.bind('change', function(){
+    cb(jqueryObj.val());
+  });
+  this.prototype = new GameFunctionButton(name, openFileCb);
+  this.jqueryObj = jqueryObj;
+  const btn = this;
+
+  return this;
+}
 /**
  * 构造记录器
  * @param htmlObj
@@ -70,6 +93,10 @@ function record(htmlObj) {
     htmlObj.html(htmlObj.html() + recordString);
     htmlObj.scrollTop(htmlObj[0].scrollHeight);
   };
+
+  this.getContext = function() {
+    return htmlObj.html();
+  }
 }
 
 function initButtons(boxes) {
@@ -86,5 +113,15 @@ function initButtons(boxes) {
   buttonList.push(new GameFunctionButton('ResetShot',function(mouseEvent) {
     boxes.resetShot();
   }));
+  buttonList.push(new FileOperationButton('Save', $('#save'), function(fileName) {
+    boxes.saveToFile(fileName);
+  }));
+  buttonList.push(new FileOperationButton('Load', $('#load'), function(fileName) {
+    boxes.loadFromFile(fileName);
+  }));
+  buttonList.push(new FileOperationButton('SaveLogs', $('#save-log'), function(fileName) {
+    boxes.saveLogs(fileName);
+  }));
+
 
 }

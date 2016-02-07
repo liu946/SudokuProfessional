@@ -121,6 +121,37 @@ function Boxes() {
   };
 
 
+  /**
+   * 保存当前内容到文件
+   * @param filePath
+   */
+  this.saveToFile = function(filePath) {
+    fs.writeFile(filePath, JSON.stringify(takeShot(this)), function (err) {
+      if (err) throw err;
+    });
+  };
+
+  /**
+   * 从文件恢复
+   * @param filePath
+   */
+  this.loadFromFile = function(filePath) {
+    fs.readFile(filePath, function(err, data){
+      if (err) throw err;
+      restoreShot(boxes, JSON.parse(data));
+    });
+  };
+  /**
+   * 保存log文件
+   * @param filePath
+   */
+  this.saveLogs = function(filePath) {
+    fs.writeFile(filePath, recorder.getContext(), function (err) {
+      if (err) throw err;
+    });
+  };
+
+
   this.init = function () {
     // draw border
     drawBorder();

@@ -3,6 +3,7 @@
  */
 
 'use strict';
+const fs = require('fs');
 
 function Box(row, col, inRow, inCol, inBlock, inBoxes) {
   this.setNumber = null;
