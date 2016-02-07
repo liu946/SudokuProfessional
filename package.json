@@ -3,9 +3,9 @@
   "main": "index.html",
   "window": {
     "title": "Sudoku Professional",
-    "toolbar": true,
-    "width": 960,
-    "height": 860,
+    "toolbar": false,
+    "width": 1000,
+    "height": 840,
     "position": "mouse"
   },
   "webkit": {
