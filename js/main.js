@@ -2,6 +2,7 @@
  * Created by liu on 16/2/1.
  */
 'use strict';
+let recorder;
 
 $(function(){
 
@@ -9,5 +10,6 @@ $(function(){
   initConfig();
   const box = new Boxes();
   initButtons(box);
+  recorder = new record($('#gameRecord'));
 
 });

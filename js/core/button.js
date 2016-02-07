@@ -5,8 +5,16 @@
 'use strict';
 
 let buttonIndex = -1;
-
+/**
+ * class 功能键
+ * @param name
+ * @param cb
+ * @returns {GameFunctionButton}
+ * @constructor
+ */
 function GameFunctionButton(name, cb) {
+  this.name = 'btn|' + name;
+  const btn = this;
   buttonIndex++;
   this.attr = {
     x: buttonStart.x,
@@ -26,8 +34,42 @@ function GameFunctionButton(name, cb) {
     .unselectable()
     .textColor('white');
 
-  this.guiInstance.bind('Click',cb);
+  this.guiInstance.bind('Click',function (e){
+    recorder.log(btn, 'button triggered');
+    cb(e);
+  });
   return this;
+}
+/**
+ * 构造记录器
+ * @param htmlObj
+ */
+function record(htmlObj) {
+  buttonIndex++;
+  this.step = 1;
+  this.attr = {
+    x: buttonStart.x,
+    y: buttonStart.y + buttonIndex * (buttonSize.h + buttonSize.interval),
+    w: buttonSize.w,
+    h: buttonSize.h,
+    alpha: 0.6,
+  };
+  this.attr.h = this.attr.x - this.attr.y - this.attr.w * 2;
+
+  htmlObj.css('left', this.attr.x);
+  htmlObj.css('top', this.attr.y);
+  htmlObj.css('width', this.attr.w);
+  htmlObj.css('height', this.attr.h);
+
+  this.log = function(sender, string) {
+    let recordString = '';
+    const allowLogSender = {box : true, row : true, col : true, block : true, btn : true, boxes: true};
+    if (allowLogSender[sender.name.split('|')[0]]) {
+      recordString = (this.step++) + ' [' + sender.name + ']\n' + string + '\n';
+    }
+    htmlObj.html(htmlObj.html() + recordString);
+    htmlObj.scrollTop(htmlObj[0].scrollHeight);
+  };
 }
 
 function initButtons(boxes) {
@@ -44,4 +86,5 @@ function initButtons(boxes) {
   buttonList.push(new GameFunctionButton('ResetShot',function(mouseEvent) {
     boxes.resetShot();
   }));
+
 }

@@ -21,6 +21,7 @@ function Boxes() {
   this._blocks = []; // 9
   this._boxGroup = []; // 27
   this.quickShot = {};
+  this.name = 'boxes|0';
   const boxes = this;
 
   this.eachBoxGroup = function (functionName, arg) {
@@ -49,6 +50,7 @@ function Boxes() {
   this.autoFill = function() {
     for (let boxGroup of this._boxGroup) {
       if (boxGroup.autoFill()) {
+        recorder.log(this, 'Found! Start next fill.');
         //延时
         setTimeout(function() {
           boxes.autoFill(); // 重新开始自动填充
@@ -59,6 +61,7 @@ function Boxes() {
     // 每个box判断自填充
     for (let box of this._boxs) {
       if (box.autoFill()) {
+        recorder.log(this, 'Found! Start next fill.');
         //延时
         setTimeout(function() {
           boxes.autoFill(); // 重新开始自动填充
@@ -66,12 +69,14 @@ function Boxes() {
         return;
       }
     }
+    recorder.log(this, 'Not found! Stop.');
   };
 
   /**
    * @description 功能：重设所有的box
    */
   this.resetAll = function() {
+    recorder.log(this, 'Reset all boxes.');
     const trueOf9 =
       [
         true, true, true,
@@ -88,18 +93,30 @@ function Boxes() {
   /**
    * @description 功能：建立快照
    */
+  function takeShot(boxes) {
+    var quickShot = {};
+    quickShot.boxGroup = boxes._boxGroup.map(function(boxGroup) { return boxGroup.getMayAnswer();});
+    quickShot.boxs = boxes._boxs.map(function(box) {return box.getMayAnswer();});
+    return quickShot;
+  }
+
+  function restoreShot(boxes, shotData) {
+    shotData.boxGroup.map(function (value, key) {
+      boxes._boxGroup[key].setMayAnswer(value);
+    });
+    shotData.boxs.map(function (value, key) {
+      boxes._boxs[key].setMayAnswer(value);
+    });
+  }
+
   this.shot = function() {
-    this.quickShot.boxGroup = this._boxGroup.map(function(boxGroup) { return boxGroup.getMayAnswer();})
-    this.quickShot.boxs = this._boxs.map(function(box) {return box.getMayAnswer();})
+    recorder.log(this, 'Temporary shot.');
+    this.quickShot = takeShot(this);
   };
 
   this.resetShot = function() {
-    this.quickShot.boxGroup.map(function (value, key) {
-      boxes._boxGroup[key].setMayAnswer(value);
-    });
-    this.quickShot.boxs.map(function (value, key) {
-      boxes._boxs[key].setMayAnswer(value);
-    });
+    recorder.log(this, 'Reset last temporary shot.');
+    restoreShot(this, this.quickShot);
     this.showOnlyInput();
   };
 

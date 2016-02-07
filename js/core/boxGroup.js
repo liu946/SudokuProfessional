@@ -102,7 +102,7 @@ function BoxGroup(name) {
 
 function initBoxGroup(groupArray, arrName) {
   for (let i = 0; i < 9; i++) {
-    groupArray[i] = new BoxGroup(arrName + i);
+    groupArray[i] = new BoxGroup(arrName + '|' + i);
     groupArray[i].index = i;
   }
 }

@@ -10,6 +10,7 @@ function Box(row, col, inRow, inCol, inBlock, inBoxes) {
   this.col = inCol;
   this.block = inBlock;
   this.boxes = inBoxes;
+  this.name = 'box|' + row + col;
   this.attr = {
     x: slice(col),
     y: slice(row),
@@ -58,7 +59,7 @@ function Box(row, col, inRow, inCol, inBlock, inBoxes) {
 
   this.set = function (number) {
     if (this.canSet(number)){
-
+      recorder.log(this, 'set ' + (number + 1));
       // logic
       this.row.set(number);
       this.col.set(number);
@@ -73,6 +74,7 @@ function Box(row, col, inRow, inCol, inBlock, inBoxes) {
   };
 
   this.unset = function (number) {
+    recorder.log(this, 'unset ' + (number + 1));
     // logic
     this.row.unset(number);
     this.col.unset(number);
@@ -135,6 +137,7 @@ function Box(row, col, inRow, inCol, inBlock, inBoxes) {
   this.autoFill = function () {
     const onlyPossible = this.returnOnlyPossible();
     if (onlyPossible && this.setNumber === null) {
+      recorder.log(this, 'find only ' + onlyPossible);
       this.set(onlyPossible - 1);
       return true;
     }
