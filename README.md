@@ -1,6 +1,9 @@
 骨灰级数独游戏盒子
 ------
 
+具体使用说明见
+[【wiki】](https://github.com/liu946/SudokuProfessional/wiki)
+
 1. 使用node webkit
 2. 使用排除数独模型
 3. 自动填充
