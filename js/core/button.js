@@ -101,6 +101,9 @@ function record(htmlObj) {
 
 function initButtons(boxes) {
   const buttonList = [];
+  buttonList.push(new GameFunctionButton('NewGame',function(mouseEvent) {
+    boxes.randomNewGame();
+  }));
   buttonList.push(new GameFunctionButton('AutoFill',function(mouseEvent) {
     boxes.autoFill();
   }));

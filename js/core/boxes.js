@@ -72,6 +72,17 @@ function Boxes() {
     recorder.log(this, 'Not found! Stop.');
   };
 
+  this.randomNewGame = function () {
+    const m = gen_new_answer();
+    drop_blanks(m, 0.6);
+    this.resetAll();
+    this._boxs.map((box) => {
+      const r = Math.floor(box.index / 9);
+      const c = box.index % 9;
+      if (m[r][c] !== null) {box.set(m[r][c]);}
+    });
+  }
+
   /**
    * @description 功能：重设所有的box
    */
