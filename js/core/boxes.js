@@ -81,6 +81,7 @@ function Boxes() {
       const c = box.index % 9;
       if (m[r][c] !== null) {box.set(m[r][c]);}
     });
+    this.showOnlyInput();
   }
 
   /**

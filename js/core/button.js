@@ -125,6 +125,7 @@ function initButtons(boxes) {
   buttonList.push(new FileOperationButton('SaveLogs', $('#save-log'), function(fileName) {
     boxes.saveLogs(fileName);
   }));
-
-
+  buttonList.push(new GameFunctionButton('😀',function(mouseEvent) {
+    alert('Michael Castor (Liu Yang) - HIT. \nAll right reserved. 2016\nhttp://liu946.github.io/');
+  }));
 }

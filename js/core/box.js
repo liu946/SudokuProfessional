@@ -88,16 +88,7 @@ function Box(row, col, inRow, inCol, inBlock, inBoxes) {
   const obj = this;
   // binding event
   this.guiInstance.bind('Click', function (mouseEvent) {
-
-    if (mouseEvent.mouseButton === Crafty.mouseButtons.MIDDLE) {
-
-      // 右键单击，切换可选状态
-      const i = obj.guiMayAnswer.getIndex(mouseEvent.x - obj.attr.x, mouseEvent.y - obj.attr.y);
-      obj.mayAnswer[i] = (!obj.mayAnswer[i]);
-      obj.guiMayAnswer.draw();
-
-    } else if (mouseEvent.mouseButton === Crafty.mouseButtons.LEFT) {
-
+    if (mouseEvent.mouseButton === Crafty.mouseButtons.LEFT) {
       // 左键单击，选择1-9
       if (obj.setNumber !== null) {
         obj.unset(obj.setNumber);
@@ -108,6 +99,16 @@ function Box(row, col, inRow, inCol, inBlock, inBoxes) {
     }
     obj.boxes.showOnlyInput();
   });
+  this.guiInstance.bind('MouseUp', function (mouseEvent) {
+    if (mouseEvent.mouseButton === Crafty.mouseButtons.RIGHT) {
+      // 右键单击，切换可选状态
+      const i = obj.guiMayAnswer.getIndex(mouseEvent.x - obj.attr.x, mouseEvent.y - obj.attr.y);
+      obj.mayAnswer[i] = (!obj.mayAnswer[i]);
+      obj.guiMayAnswer.draw();
+    }
+    obj.boxes.showOnlyInput();
+  });
+
   this.removePossible = function (number) {
     this.mayAnswer[number] = false;
     this.guiMayAnswer.draw();
