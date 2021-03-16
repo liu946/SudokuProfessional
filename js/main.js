@@ -6,7 +6,7 @@ let recorder;
 
 $(function(){
 
-  const crafty = Crafty.init(1030, 930, document.getElementById('game'));
+  const crafty = Crafty.init(1000, 930, document.getElementById('game'));
   initConfig();
   const box = new Boxes();
   initButtons(box);

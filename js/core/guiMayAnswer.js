@@ -16,7 +16,7 @@ function guiMayAnswer(obj) {
         x: obj.attr.x + small9size.w * parseInt(i % 3) + notePosFix.x,
         y: obj.attr.y + small9size.h * parseInt(i / 3) + notePosFix.y,
       })
-      .textFont({size: '20px', weight: 'bold'})
+      .textFont({size: '18px', weight: 'bold'})
       .text(i + 1)
       .textColor(color.allow);
   }

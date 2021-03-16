@@ -52,7 +52,7 @@ function Box(row, col, inRow, inCol, inBlock, inBoxes) {
       y: this.attr.y + numberPosFix.y,
       visible: false,
     }))
-    .textFont({size: '60px', weight: 'bold'})
+    .textFont({size: '58px', weight: 'bold'})
     .textColor(color.allow);
   this.canSet = function (number) {
     return this.row.canSet(number) && this.col.canSet(number) && this.block.canSet(number);
